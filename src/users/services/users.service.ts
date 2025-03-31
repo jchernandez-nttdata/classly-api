@@ -20,11 +20,7 @@ export class UsersService {
 
     async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
         await this.userRepository.update(id, updateUserDto);
-        return this.userRepository.findOneOrFail({
-            where: {
-                id: id
-            }
-        });
+        return this.findOne(id);
     }
 
     async findStudents(): Promise<Omit<User, 'password'>[]> {
@@ -32,6 +28,14 @@ export class UsersService {
         return students.map(student => {
             const { password, ...studentWithoutPassword } = student;
             return studentWithoutPassword;
+        });
+    }
+
+    async findOne(id: number): Promise<User> {
+        return this.userRepository.findOneOrFail({
+            where: {
+                id: id
+            }
         });
     }
 }

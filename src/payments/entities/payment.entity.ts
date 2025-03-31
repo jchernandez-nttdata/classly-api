@@ -7,7 +7,7 @@ export class Payment {
   id: number;
 
   @ManyToOne(() => UserSchedule, userSchedule => userSchedule.id)
-  userSchedule: number;
+  userSchedule: UserSchedule;
 
   @Column()
   amount: number;
@@ -16,5 +16,5 @@ export class Payment {
   paymentDate: Date;
 
   @Column()
-  remainingClasses: number;
+  paidClasses: number;
 }

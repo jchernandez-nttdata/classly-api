@@ -11,6 +11,7 @@ import { LocationsController } from './controllers/locations.controller';
 import { LocationsService } from './services/locations.service';
 import { SchedulesService } from './services/schedules.service';
 import { SchedulesController } from './controllers/schedules.controller';
+import { UserSchedulesService } from './services/user_schedules.service';
 
 
 @Module({
@@ -19,7 +20,7 @@ import { SchedulesController } from './controllers/schedules.controller';
     TypeOrmModule.forFeature([Class, Location, Schedule, UserSchedule])
   ],
   controllers: [ClassesController, LocationsController, SchedulesController],
-  providers: [ClassesService, LocationsService, SchedulesService],
+  providers: [ClassesService, LocationsService, SchedulesService, UserSchedulesService],
   exports: [TypeOrmModule, LocationsService, ClassesService, SchedulesService]
 })
 

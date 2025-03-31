@@ -8,8 +8,11 @@ export class UserSchedule {
   id: number;
 
   @ManyToOne(() => User, user => user.id)
-  student: number;
+  student: User;
 
   @ManyToOne(() => Schedule, schedule => schedule.id)
-  schedule: number;
+  schedule: Schedule;
+
+  @Column()
+  remainingClasses: number;
 }
