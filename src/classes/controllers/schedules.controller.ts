@@ -1,10 +1,14 @@
 import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { SchedulesService } from '../services/schedules.service';
 import { ScheduleDto, UpdateScheduleDto } from '../dtos/schedule.dto';
+import { UserSchedulesService } from '../services/user_schedules.service';
 
 @Controller()
 export class SchedulesController {
-    constructor(private readonly schedulesService: SchedulesService) { }
+    constructor(
+        private readonly schedulesService: SchedulesService,
+        private readonly userSchedulesService: UserSchedulesService,
+    ) { }
 
     @Post('classes/:classId/schedules')
     create(
@@ -25,5 +29,13 @@ export class SchedulesController {
     @Get('classes/:classId/schedules')
     findAllByClass(@Param('classId') classId: number) {
         return this.schedulesService.findAllByClass(classId);
+    }
+
+    @Get('locations/:locationId/students/:studentId/schedules')
+    async getSchedulesByStudentAndLocation(
+        @Param('locationId') locationId: number,
+        @Param('studentId') studentId: number
+    ) {
+        return await this.userSchedulesService.findSchedulesByStudentAndLocation(studentId, locationId);
     }
 }
