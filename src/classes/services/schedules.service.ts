@@ -24,15 +24,19 @@ export class SchedulesService {
 
     async update(id: number, updateScheduleDto: UpdateScheduleDto): Promise<Schedule> {
         await this.scheduleRepository.update(id, updateScheduleDto);
-        return await this.scheduleRepository.findOneOrFail({
-            where: {
-                id: id
-            }
-        });
+        return await this.findOne(id)
     }
 
     async findAllByClass(classId: number): Promise<Schedule[]> {
         const classEntity = await this.classService.findOne(classId);
         return await this.scheduleRepository.find({ where: { class: classEntity } });
+    }
+
+    async findOne(id: number): Promise<Schedule> {
+        return this.scheduleRepository.findOneOrFail({
+            where: {
+                id: id
+            }
+        });
     }
 }
