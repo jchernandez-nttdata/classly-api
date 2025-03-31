@@ -1,3 +1,4 @@
+import { OmitType, PartialType } from '@nestjs/swagger';
 import { IsInt, IsNotEmpty, Min } from 'class-validator';
 
 export class CreateUserScheduleDto {
@@ -14,3 +15,5 @@ export class CreateUserScheduleDto {
   @Min(0)
   remainingClasses: number;
 }
+
+export class UpdateUserScheduleDto extends OmitType(CreateUserScheduleDto, ['scheduleId', 'studentId'] as const) { }

@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserSchedule } from '../entities/user_schedule.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from 'src/users/services/users.service';
 import { SchedulesService } from './schedules.service';
-import { CreateUserScheduleDto } from '../dtos/user_schedule.dto';
+import { CreateUserScheduleDto, UpdateUserScheduleDto } from '../dtos/user_schedule.dto';
 import { User } from 'src/users/entities/user.entity';
 import { Schedule } from '../entities/schedule.entity';
 
@@ -23,7 +23,8 @@ export class UserSchedulesService {
         const student = await this.userService.findOne(studentId)
         const schedule = await this.scheduleService.findOne(scheduleId);
 
-        await this.checkIfUserScheduleExistsOrThrow(studentId, scheduleId);
+        const studentSchedule = await this.findOneByStudentAndSchedule(studentId, scheduleId);
+        if (studentSchedule) throw new Error('Student and schedule relationship already exists');
 
         const userSchedule = this.userScheduleRepository.create({
             student: student,
@@ -34,16 +35,20 @@ export class UserSchedulesService {
         return await this.userScheduleRepository.save(userSchedule);
     }
 
-    async checkIfUserScheduleExistsOrThrow(studentId: number, scheduleId: number): Promise<void> {
-        const existingUserSchedule = await this.userScheduleRepository.findOne({
-            where: {
-                student: { id: studentId },
-                schedule: { id: scheduleId },
-            },
-        });
+    async findOneByStudentAndSchedule(studentId: number, scheduleId: number): Promise<UserSchedule | null> {
+        return await this.userScheduleRepository.findOne({ where: { student: { id: studentId }, schedule: { id: scheduleId } } });
+    }
 
-        if (existingUserSchedule) {
-            throw new Error('UserSchedule with the same student and schedule already exists');
+    async findOne(id: number): Promise<UserSchedule> {
+        try {
+            return await this.userScheduleRepository.findOneOrFail({ where: { id: id } });
+        } catch (error) {
+            throw new NotFoundException('Could not find user schedule with id: ' + id)
         }
+    }
+
+    async update(id: number, updateUserScheduleDto: UpdateUserScheduleDto): Promise<UserSchedule> {
+        await this.userScheduleRepository.update(id, updateUserScheduleDto);
+        return await this.findOne(id);
     }
 }

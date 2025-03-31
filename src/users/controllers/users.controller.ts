@@ -14,7 +14,11 @@ export class UsersController {
 
     @Put(':id')
     update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
-        return this.userService.update(id, updateUserDto);
+        try {
+            return this.userService.update(id, updateUserDto);
+        } catch (error) {
+            throw error
+        }
     }
 
     @Get('students')

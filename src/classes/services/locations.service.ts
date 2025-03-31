@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Location } from '../entities/locations.entity';
 import { Repository } from 'typeorm';
@@ -19,11 +19,7 @@ export class LocationsService {
 
     async update(id: number, updateUserDto: UpdateLocationDto): Promise<Location> {
         await this.locationRepository.update(id, updateUserDto);
-        return this.locationRepository.findOneOrFail({
-            where: {
-                id: id
-            }
-        });
+        return await this.findOne(id);
     }
 
     async findAll(): Promise<Location[]> {
@@ -31,10 +27,14 @@ export class LocationsService {
     }
 
     async findOne(id: number): Promise<Location> {
-        return this.locationRepository.findOneOrFail({
-            where: {
-                id: id
-            }
-        });
+        try {
+            return await this.locationRepository.findOneOrFail({
+                where: {
+                    id: id
+                }
+            });
+        } catch (error) {
+            throw new NotFoundException('Could not find Location with id: ' + id)
+        }
     }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Schedule } from '../entities/schedule.entity';
 import { Repository } from 'typeorm';
@@ -33,10 +33,14 @@ export class SchedulesService {
     }
 
     async findOne(id: number): Promise<Schedule> {
-        return this.scheduleRepository.findOneOrFail({
-            where: {
-                id: id
-            }
-        });
+        try {
+            return await this.scheduleRepository.findOneOrFail({
+                where: {
+                    id: id
+                }
+            });
+        } catch (error) {
+            throw new NotFoundException('Could not find Schedule with id: ' + id)
+        }
     }
 }

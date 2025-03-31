@@ -21,7 +21,7 @@ import { UserSchedulesService } from './services/user_schedules.service';
   ],
   controllers: [ClassesController, LocationsController, SchedulesController],
   providers: [ClassesService, LocationsService, SchedulesService, UserSchedulesService],
-  exports: [TypeOrmModule, LocationsService, ClassesService, SchedulesService]
+  exports: [TypeOrmModule, LocationsService, ClassesService, SchedulesService, UserSchedulesService]
 })
 
 export class ClassesModule {}

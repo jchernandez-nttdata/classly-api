@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Class } from '../entities/class.entity';
 import { Repository } from 'typeorm';
@@ -25,11 +25,7 @@ export class ClassesService {
 
     async update(id: number, updateClassDto: UpdateClassDto): Promise<Class> {
         await this.classRepository.update(id, updateClassDto);
-        return this.classRepository.findOneOrFail({
-            where: {
-                id: id
-            }
-        });
+        return await this.findOne(id);
     }
 
     async findAllByLocation(locationId: number): Promise<Class[]> {
@@ -38,10 +34,14 @@ export class ClassesService {
     }
 
     async findOne(id: number): Promise<Class> {
-        return this.classRepository.findOneOrFail({
-            where: {
-                id: id
-            }
-        });
+        try {
+            return await this.classRepository.findOneOrFail({
+                where: {
+                    id: id
+                }
+            });
+        } catch (error) {
+            throw new NotFoundException('Could not find Class with id: ' + id)
+        }
     }
 }
