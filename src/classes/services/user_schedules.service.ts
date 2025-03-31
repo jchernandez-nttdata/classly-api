@@ -1,12 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserSchedule } from '../entities/user_schedule.entity';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { UsersService } from 'src/users/services/users.service';
 import { SchedulesService } from './schedules.service';
 import { CreateUserScheduleDto, UpdateUserScheduleDto } from '../dtos/user_schedule.dto';
 import { User } from 'src/users/entities/user.entity';
 import { Schedule } from '../entities/schedule.entity';
+import { AttendancesService } from 'src/attendances/services/attendances.service';
 
 @Injectable()
 export class UserSchedulesService {
@@ -15,6 +16,8 @@ export class UserSchedulesService {
         private readonly userScheduleRepository: Repository<UserSchedule>,
         private readonly userService: UsersService,
         private readonly scheduleService: SchedulesService,
+        @Inject(forwardRef(() => AttendancesService))
+        private readonly attendanceService: AttendancesService
     ) { }
 
     async create(createUserScheduleDto: CreateUserScheduleDto): Promise<UserSchedule> {
@@ -84,6 +87,32 @@ export class UserSchedulesService {
             dayOfWeek: userSchedule.schedule.dayOfWeek,
             startTime: userSchedule.schedule.startTime,
             endTime: userSchedule.schedule.endTime,
+        }));
+
+        return schedules;
+    }
+
+    async findSchedulesWithRemainingClasses(studentId: number): Promise<any[]> {
+        const userSchedules = await this.userScheduleRepository.find({
+            where: { student: { id: studentId }, remainingClasses: MoreThan(0) },
+            relations: ['schedule', 'schedule.class'],
+        });
+
+        if (!userSchedules.length) {
+            throw new NotFoundException(`No schedules found with remaining classes for student with ID ${studentId}`);
+        }
+
+        const schedules = await Promise.all(userSchedules.map(async userSchedule => {
+            const attendanceRecorded = await this.attendanceService.isAttendanceRecordedToday(userSchedule.id);
+
+            return {
+                userScheduleId: userSchedule.id,
+                className: userSchedule.schedule.class.className,
+                dayOfWeek: userSchedule.schedule.dayOfWeek,
+                startTime: userSchedule.schedule.startTime,
+                endTime: userSchedule.schedule.endTime,
+                attendanceRecorded: attendanceRecorded,
+            };
         }));
 
         return schedules;

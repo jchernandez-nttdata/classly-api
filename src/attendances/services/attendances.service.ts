@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Attendance } from '../entities/attendance.entity';
 import { Between, Repository } from 'typeorm';
@@ -7,6 +7,7 @@ import { UserSchedulesService } from 'src/classes/services/user_schedules.servic
 @Injectable()
 export class AttendancesService {
     constructor(
+        @Inject(forwardRef(() => UserSchedulesService))
         private readonly userScheduleService: UserSchedulesService,
         @InjectRepository(Attendance)
         private readonly attendanceRepository: Repository<Attendance>,
@@ -46,5 +47,20 @@ export class AttendancesService {
         if (existingAttendance) {
             throw new BadRequestException(`Attendance already recorded for today`);
         }
+    }
+
+    async isAttendanceRecordedToday(userScheduleId: number): Promise<boolean> {
+        const today = new Date();
+        const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+        const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
+        const existingAttendance = await this.attendanceRepository.findOne({
+            where: {
+                userSchedule: { id: userScheduleId },
+                registrationDate: Between(startOfDay, endOfDay),
+            },
+        });
+
+        return !!existingAttendance;
     }
 }

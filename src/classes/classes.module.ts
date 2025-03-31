@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ClassesController } from './controllers/classes.controller';
 import { ClassesService } from './services/classes.service';
 import { UsersModule } from 'src/users/users.module';
@@ -12,11 +12,14 @@ import { LocationsService } from './services/locations.service';
 import { SchedulesService } from './services/schedules.service';
 import { SchedulesController } from './controllers/schedules.controller';
 import { UserSchedulesService } from './services/user_schedules.service';
+import { AttendancesService } from 'src/attendances/services/attendances.service';
+import { AttendancesModule } from 'src/attendances/attendances.module';
 
 
 @Module({
   imports: [
     UsersModule,
+    forwardRef(() => AttendancesModule),
     TypeOrmModule.forFeature([Class, Location, Schedule, UserSchedule])
   ],
   controllers: [ClassesController, LocationsController, SchedulesController],
