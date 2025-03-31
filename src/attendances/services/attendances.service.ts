@@ -63,4 +63,25 @@ export class AttendancesService {
 
         return !!existingAttendance;
     }
+
+    async getAttendancesByStudentId(studentId: number): Promise<any[]> {
+        const userSchedules = await this.userScheduleService.findAllByStudentId(studentId);
+
+        const attendances = await Promise.all(userSchedules.map(async userSchedule => {
+            const attendanceRecords = await this.attendanceRepository.find({
+                where: { userSchedule: { id: userSchedule.id } },
+                relations: ['userSchedule'],
+            });
+
+            return attendanceRecords.map(attendance => ({
+                className: userSchedule.schedule.class.className,
+                startTime: userSchedule.schedule.startTime,
+                endTime: userSchedule.schedule.endTime,
+                registrationDate: attendance.registrationDate,
+            }));
+        }));
+
+        return attendances.flat();
+    }
+    
 }

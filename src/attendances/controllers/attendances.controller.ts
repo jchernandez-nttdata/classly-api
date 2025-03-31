@@ -1,13 +1,18 @@
-import { Controller, Param, Post } from '@nestjs/common';
+import { Controller, Get, Param, Post } from '@nestjs/common';
 import { AttendancesService } from '../services/attendances.service';
 import { Attendance } from '../entities/attendance.entity';
 
-@Controller('')
+@Controller()
 export class AttendancesController {
     constructor(private readonly attendanceService: AttendancesService) {}
 
-    @Post('userSchedules/:userScheduleId/attendance')
+    @Post('userSchedules/:userScheduleId/attendances')
     async addAttendance(@Param('userScheduleId') userScheduleId: number): Promise<Attendance> {
         return await this.attendanceService.addAttendance(userScheduleId);
+    }
+
+    @Get('students/:studentId/attendances')
+    async getAttendancesByStudentId(@Param('studentId') studentId: number): Promise<any[]> {
+        return await this.attendanceService.getAttendancesByStudentId(studentId);
     }
 }

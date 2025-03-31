@@ -50,6 +50,19 @@ export class UserSchedulesService {
         }
     }
 
+    async findAllByStudentId(studentId: number): Promise<UserSchedule[]> {
+        const userSchedules = await this.userScheduleRepository.find({
+            where: { student: { id: studentId } },
+            relations: ['schedule', 'schedule.class'],
+        });
+
+        if (!userSchedules.length) {
+            throw new NotFoundException(`No schedules found for student with ID ${studentId}`);
+        }
+
+        return userSchedules;
+    }
+
     async update(id: number, updateUserScheduleDto: UpdateUserScheduleDto): Promise<UserSchedule> {
         await this.userScheduleRepository.update(id, updateUserScheduleDto);
         return await this.findOne(id);
