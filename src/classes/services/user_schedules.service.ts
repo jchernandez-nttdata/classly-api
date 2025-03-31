@@ -79,6 +79,7 @@ export class UserSchedulesService {
         });
 
         const schedules = userSchedules.map(userSchedule => ({
+            userScheduleId: userSchedule.id,
             className: userSchedule.schedule.class.className,
             dayOfWeek: userSchedule.schedule.dayOfWeek,
             startTime: userSchedule.schedule.startTime,
