@@ -83,5 +83,21 @@ export class AttendancesService {
 
         return attendances.flat();
     }
-    
+
+    async getAttendanceDatesByScheduleId(scheduleId: number): Promise<string[]> {
+        const userSchedules = await this.userScheduleService.findAllByScheduleId(scheduleId)
+
+        const attendanceDates = await Promise.all(userSchedules.map(async userSchedule => {
+            const attendanceRecords = await this.attendanceRepository.find({
+                where: { userSchedule: { id: userSchedule.id } },
+                relations: ['userSchedule'],
+            });
+
+            return attendanceRecords.map(attendance => attendance.registrationDate.toISOString().split('T')[0]);
+        }));
+
+        const uniqueDates = Array.from(new Set(attendanceDates.flat()));
+
+        return uniqueDates;
+    }
 }

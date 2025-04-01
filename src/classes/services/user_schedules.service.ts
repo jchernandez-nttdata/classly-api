@@ -57,7 +57,20 @@ export class UserSchedulesService {
         });
 
         if (!userSchedules.length) {
-            throw new NotFoundException(`No schedules found for student with ID ${studentId}`);
+            throw new NotFoundException(`No user schedules found for student with ID ${studentId}`);
+        }
+
+        return userSchedules;
+    }
+
+    async findAllByScheduleId(scheduleId: number): Promise<UserSchedule[]> {
+        const userSchedules = await this.userScheduleRepository.find({
+            where: { schedule: { id: scheduleId } },
+            relations: ['schedule'],
+        });
+
+        if (!userSchedules.length) {
+            throw new NotFoundException(`No user schedules found for schedule with ID ${scheduleId}`);
         }
 
         return userSchedules;
