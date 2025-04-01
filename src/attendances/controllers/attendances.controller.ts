@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { AttendancesService } from '../services/attendances.service';
 import { Attendance } from '../entities/attendance.entity';
 
@@ -19,5 +19,13 @@ export class AttendancesController {
     @Get('schedules/:scheduleId/attendances/dates')
     async getAttendanceDatesByScheduleId(@Param('scheduleId') scheduleId: number): Promise<string[]> {
         return await this.attendanceService.getAttendanceDatesByScheduleId(scheduleId);
+    }
+
+    @Get('schedules/:scheduleId/attendances')
+    async getStudentAttendanceByDate(
+        @Param('scheduleId') scheduleId: number,
+        @Query('date') date: string
+    ): Promise<{ name: string, registrationDate: string }[]> {
+        return this.attendanceService.getStudentAttendanceByDate(scheduleId, date);
     }
 }

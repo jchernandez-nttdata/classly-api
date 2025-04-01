@@ -100,4 +100,29 @@ export class AttendancesService {
 
         return uniqueDates;
     }
+
+    async getStudentAttendanceByDate(scheduleId: number, date: string): Promise<{ name: string, registrationDate: string }[]> {
+        const userSchedules = await this.userScheduleService.findAllByScheduleId(scheduleId);
+
+        const attendanceRecords = await Promise.all(userSchedules.map(async userSchedule => {
+            const startDate = new Date(date);
+            const endDate = new Date(date);
+            endDate.setDate(endDate.getDate() + 1);
+
+            return this.attendanceRepository.find({
+                where: {
+                    userSchedule: { id: userSchedule.id },
+                    registrationDate: Between(startDate, endDate)
+                },
+                relations: ['userSchedule', 'userSchedule.student']
+            });
+        }));
+
+        const studentAttendance = attendanceRecords.flat().map(attendance => ({
+            name: attendance.userSchedule.student.name,
+            registrationDate: attendance.registrationDate.toISOString()
+        }));
+
+        return studentAttendance;
+    }
 }
