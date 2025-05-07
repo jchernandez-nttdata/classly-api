@@ -22,4 +22,7 @@ export class User {
 
   @Column()
   role: string; // 'admin' or 'student'
+
+  @Column({ type: 'date' })
+  birthdate: string; // YYYY-MM-DD
 }
