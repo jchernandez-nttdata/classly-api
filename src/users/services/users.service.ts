@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
 import { Repository } from 'typeorm';
@@ -13,14 +13,31 @@ export class UsersService {
     ) { }
 
     async create(body: CreateUserDto) {
-        const student = this.userRepository.create(body);
-        await this.userRepository.save(student);
-        return student;
+        try {
+            const student = this.userRepository.create(body);
+            await this.userRepository.save(student);
+            return student;
+        } catch (error) {
+            if (error.code === 'ER_DUP_ENTRY') {
+                throw new ConflictException('Usuario con mismo dni u email ya existente.');
+            }
+            throw error;
+        }
     }
 
     async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-        await this.userRepository.update(id, updateUserDto);
-        return await this.findOne(id);
+        try {
+            if (updateUserDto.password === '') {
+                delete updateUserDto.password;
+            }
+            await this.userRepository.update(id, updateUserDto);
+            return await this.findOne(id);
+        } catch (error) {
+            if (error.code === 'ER_DUP_ENTRY') {
+                throw new ConflictException('Usuario con mismo dni u email ya existente.');
+            }
+            throw error;
+        }
     }
 
     async findStudents(): Promise<Omit<User, 'password'>[]> {
