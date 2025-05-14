@@ -5,8 +5,6 @@ import { MoreThan, Repository } from 'typeorm';
 import { UsersService } from 'src/users/services/users.service';
 import { SchedulesService } from './schedules.service';
 import { CreateUserScheduleDto, UpdateUserScheduleDto } from '../dtos/user_schedule.dto';
-import { User } from 'src/users/entities/user.entity';
-import { Schedule } from '../entities/schedule.entity';
 import { AttendancesService } from 'src/attendances/services/attendances.service';
 
 @Injectable()

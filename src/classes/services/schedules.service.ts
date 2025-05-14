@@ -32,6 +32,27 @@ export class SchedulesService {
         return await this.scheduleRepository.find({ where: { class: classEntity } });
     }
 
+    async findAllByLocationId(locationId: number) {
+        const schedules = await this.scheduleRepository.find({
+            relations: ['class'],
+            where: {
+                class: {
+                    location: {
+                        id: locationId,
+                    },
+                },
+            },
+        });
+
+        return schedules.map(schedule => ({
+            id: schedule.id,
+            dayOfWeek: schedule.dayOfWeek,
+            startTime: schedule.startTime,
+            endTime: schedule.endTime,
+            className: schedule.class.className,
+        }));
+    }
+
     async findOne(id: number): Promise<Schedule> {
         try {
             return await this.scheduleRepository.findOneOrFail({

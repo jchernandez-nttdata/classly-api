@@ -31,6 +31,11 @@ export class SchedulesController {
         return this.schedulesService.findAllByClass(classId);
     }
 
+    @Get('locations/:locationId/schedules')
+    findAllByLocation(@Param('locationId') locationId: number) {
+        return this.schedulesService.findAllByLocationId(locationId);
+    }
+
     @Get('locations/:locationId/students/:studentId/schedules')
     async getSchedulesByStudentAndLocation(
         @Param('locationId') locationId: number,
