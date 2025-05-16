@@ -141,4 +141,23 @@ export class UserSchedulesService {
 
         return schedules;
     }
+
+    async findStudentsByScheduleId(scheduleId: number) {
+        const userSchedules = await this.userScheduleRepository.find({
+            where: {
+                schedule: { id: scheduleId },
+                student: { role: 'student' },
+            },
+            relations: ['student', 'schedule'],
+        });
+
+        return userSchedules.map(us => ({
+            id: us.student.id,
+            name: us.student.name,
+            email: us.student.email,
+            dni: us.student.dni,
+            phone: us.student.phone,
+            remainingClasses: us.remainingClasses
+        }));
+    }
 }

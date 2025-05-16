@@ -14,6 +14,7 @@ import { SchedulesController } from './controllers/schedules.controller';
 import { UserSchedulesService } from './services/user_schedules.service';
 import { AttendancesService } from 'src/attendances/services/attendances.service';
 import { AttendancesModule } from 'src/attendances/attendances.module';
+import { UserSchedulesController } from './controllers/user_schedules.controller';
 
 
 @Module({
@@ -22,7 +23,7 @@ import { AttendancesModule } from 'src/attendances/attendances.module';
     forwardRef(() => AttendancesModule),
     TypeOrmModule.forFeature([Class, Location, Schedule, UserSchedule])
   ],
-  controllers: [ClassesController, LocationsController, SchedulesController],
+  controllers: [ClassesController, LocationsController, SchedulesController, UserSchedulesController],
   providers: [ClassesService, LocationsService, SchedulesService, UserSchedulesService],
   exports: [TypeOrmModule, LocationsService, ClassesService, SchedulesService, UserSchedulesService]
 })
