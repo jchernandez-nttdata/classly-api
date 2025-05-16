@@ -34,7 +34,7 @@ export class SchedulesService {
 
     async findAllByLocationId(locationId: number) {
         const schedules = await this.scheduleRepository.find({
-            relations: ['class'],
+            relations: ['class', 'class.location'],
             where: {
                 class: {
                     location: {
@@ -50,6 +50,7 @@ export class SchedulesService {
             startTime: schedule.startTime,
             endTime: schedule.endTime,
             className: schedule.class.className,
+            locationName: schedule.class.location.locationName,
         }));
     }
 
