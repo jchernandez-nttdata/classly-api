@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserSchedule } from '../entities/user_schedule.entity';
 import { MoreThan, Repository } from 'typeorm';
@@ -159,5 +159,25 @@ export class UserSchedulesService {
             phone: us.student.phone,
             remainingClasses: us.remainingClasses
         }));
+    }
+
+    async unenrollStudent(userId: number, scheduleId: number): Promise<void> {
+        const userSchedule = await this.userScheduleRepository.findOne({
+            where: {
+                student: { id: userId },
+                schedule: { id: scheduleId },
+            },
+            relations: ['student', 'schedule'],
+        });
+
+        if (!userSchedule) {
+            throw new NotFoundException('Enrollment not found');
+        }
+
+        if (userSchedule.remainingClasses > 0) {
+            throw new BadRequestException('Student still has remaining classes');
+        }
+
+        await this.userScheduleRepository.remove(userSchedule);
     }
 }
