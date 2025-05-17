@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { UsersService } from '../services/users.service';
 import { CreateUserDto } from '../dtos/register-student.dto';
 import { UpdateUserDto } from '../dtos/update-student.dto';
@@ -22,7 +22,7 @@ export class UsersController {
     }
 
     @Get('students')
-    findStudents() {
-      return this.userService.findStudents();
+    findStudents(@Query('search') search?: string) {
+      return this.userService.findStudents(search);
     }
 }

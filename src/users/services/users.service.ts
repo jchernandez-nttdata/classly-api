@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { CreateUserDto } from '../dtos/register-student.dto';
 import { UpdateUserDto } from '../dtos/update-student.dto';
 
@@ -40,12 +40,17 @@ export class UsersService {
         }
     }
 
-    async findStudents(): Promise<Omit<User, 'password'>[]> {
-        const students = await this.userRepository.find({ where: { role: 'student' } });
-        return students.map(student => {
-            const { password, ...studentWithoutPassword } = student;
-            return studentWithoutPassword;
-        });
+    async findStudents(search?: string): Promise<Omit<User, 'password'>[]> {
+        const where = {
+            role: 'student',
+            ...(search && {
+                name: ILike(`%${search}%`),
+            }),
+        };
+
+        const students = await this.userRepository.find({ where });
+
+        return students.map(({ password, ...student }) => student);
     }
 
     async findOne(id: number): Promise<User> {
