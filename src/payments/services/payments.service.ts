@@ -38,6 +38,29 @@ export class PaymentsService {
         return await this.paymentRepository.save(payment);
     }
 
+    async getAllPayments(): Promise<{
+        id: number;
+        studentName: string;
+        amount: number;
+        paidClasses: number;
+        paymentDate: Date;
+    }[]> {
+        const payments = await this.paymentRepository.find({
+            relations: ['userSchedule', 'userSchedule.student'],
+            order: {
+                paymentDate: 'DESC',
+            },
+        });
+
+        return payments.map(payment => ({
+            id: payment.id,
+            studentName: payment.userSchedule.student.name,
+            amount: payment.amount,
+            paidClasses: payment.paidClasses,
+            paymentDate: payment.paymentDate,
+        }));
+    }
+
     async getPaymentsByStudent(studentId: number): Promise<Payment[]> {
         const payments = await this.paymentRepository.find({
             where: { userSchedule: { student: { id: studentId } } },

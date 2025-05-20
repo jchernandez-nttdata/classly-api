@@ -20,4 +20,9 @@ export class PaymentsController {
     async getPaymentsByUserScheduleId(@Param('userScheduleId') userScheduleId: number) {
         return await this.paymentsService.getPaymentsByUserScheduleId(userScheduleId);
     }
+
+    @Get('payments')
+    async getAllPayments() {
+        return await this.paymentsService.getAllPayments();
+    }
 }
