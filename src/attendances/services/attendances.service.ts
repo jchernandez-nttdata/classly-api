@@ -85,20 +85,17 @@ export class AttendancesService {
     }
 
     async getAttendanceDatesByScheduleId(scheduleId: number): Promise<string[]> {
-        const userSchedules = await this.userScheduleService.findAllByScheduleId(scheduleId)
+        await this.userScheduleService.findOne(scheduleId)
+        const results = await this.attendanceRepository
+            .createQueryBuilder('attendance')
+            .select('DISTINCT DATE(attendance.registrationDate)', 'date')
+            .innerJoin('attendance.userSchedule', 'userSchedule')
+            .innerJoin('userSchedule.schedule', 'schedule')
+            .where('schedule.id = :scheduleId', { scheduleId })
+            .orderBy('date', 'DESC')
+            .getRawMany();
 
-        const attendanceDates = await Promise.all(userSchedules.map(async userSchedule => {
-            const attendanceRecords = await this.attendanceRepository.find({
-                where: { userSchedule: { id: userSchedule.id } },
-                relations: ['userSchedule'],
-            });
-
-            return attendanceRecords.map(attendance => attendance.registrationDate.toISOString().split('T')[0]);
-        }));
-
-        const uniqueDates = Array.from(new Set(attendanceDates.flat()));
-
-        return uniqueDates;
+        return results.map(r => r.date);
     }
 
     async getStudentAttendanceByDate(scheduleId: number, date: string): Promise<{ name: string, registrationDate: string }[]> {
@@ -119,6 +116,7 @@ export class AttendancesService {
         }));
 
         const studentAttendance = attendanceRecords.flat().map(attendance => ({
+            studentId: attendance.userSchedule.student.id,
             name: attendance.userSchedule.student.name,
             registrationDate: attendance.registrationDate.toISOString()
         }));
