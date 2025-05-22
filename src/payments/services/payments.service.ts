@@ -38,15 +38,15 @@ export class PaymentsService {
         return await this.paymentRepository.save(payment);
     }
 
-    async getAllPayments(): Promise<{
-        id: number;
-        studentName: string;
-        amount: number;
-        paidClasses: number;
-        paymentDate: Date;
-    }[]> {
+    async getAllPayments(): Promise<PaymentWithClassInfo[]> {
         const payments = await this.paymentRepository.find({
-            relations: ['userSchedule', 'userSchedule.student'],
+            relations: [
+                'userSchedule',
+                'userSchedule.student',
+                'userSchedule.schedule',
+                'userSchedule.schedule.class',
+                'userSchedule.schedule.class.location',
+            ],
             order: {
                 paymentDate: 'DESC',
             },
@@ -58,8 +58,18 @@ export class PaymentsService {
             amount: payment.amount,
             paidClasses: payment.paidClasses,
             paymentDate: payment.paymentDate,
+            class: {
+                locationName: payment.userSchedule.schedule.class.location.locationName,
+                className: payment.userSchedule.schedule.class.className,
+                schedule: {
+                    dayOfWeek: payment.userSchedule.schedule.dayOfWeek,
+                    startTime: payment.userSchedule.schedule.startTime,
+                    endTime: payment.userSchedule.schedule.endTime,
+                },
+            },
         }));
     }
+
 
     async getPaymentsByStudent(studentId: number): Promise<Payment[]> {
         const payments = await this.paymentRepository.find({
