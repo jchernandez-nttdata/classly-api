@@ -9,8 +9,12 @@ export class Payment {
   @ManyToOne(() => UserSchedule, userSchedule => userSchedule.id)
   userSchedule: UserSchedule;
 
-  @Column()
-  amount: number;
+  @Column('decimal', {
+    precision: 10, scale: 2, transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseFloat(value),
+    }
+  }) amount: number;
 
   @Column()
   paymentDate: Date;

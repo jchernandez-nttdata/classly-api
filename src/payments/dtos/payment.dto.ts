@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, Min } from "class-validator";
+import { IsInt, IsNotEmpty, IsNumber, Min } from "class-validator";
 
 export class CreatePaymentDto {
     @IsInt()
@@ -7,7 +7,7 @@ export class CreatePaymentDto {
     @IsInt()
     scheduleId: number;
 
-    @IsInt()
+    @IsNumber({ maxDecimalPlaces: 2 })
     @Min(0)
     amount: number;
 
