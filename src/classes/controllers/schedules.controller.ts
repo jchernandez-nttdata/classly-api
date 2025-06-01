@@ -46,6 +46,6 @@ export class SchedulesController {
 
     @Get('students/:studentId/schedules')
     async getSchedulesWithRemainingClasses(@Param('studentId') studentId: number): Promise<any[]> {
-        return await this.userSchedulesService.findSchedulesWithRemainingClasses(studentId);
+        return await this.userSchedulesService.findUserSchedulesByStudentId(studentId);
     }
 }

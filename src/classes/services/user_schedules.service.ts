@@ -116,10 +116,10 @@ export class UserSchedulesService {
         return schedules;
     }
 
-    async findSchedulesWithRemainingClasses(studentId: number): Promise<any[]> {
+    async findUserSchedulesByStudentId(studentId: number): Promise<any[]> {
         const userSchedules = await this.userScheduleRepository.find({
             where: { student: { id: studentId }, remainingClasses: MoreThan(0) },
-            relations: ['schedule', 'schedule.class'],
+            relations: ['schedule', 'schedule.class', 'schedule.class.location'],
         });
 
         if (!userSchedules.length) {
@@ -127,15 +127,17 @@ export class UserSchedulesService {
         }
 
         const schedules = await Promise.all(userSchedules.map(async userSchedule => {
-            const attendanceRecorded = await this.attendanceService.isAttendanceRecordedToday(userSchedule.id);
+            const attendanceRecorded = await this.attendanceService.isAttendanceRecordedThisWeek(userSchedule.schedule.dayOfWeek, userSchedule.id);
 
             return {
                 userScheduleId: userSchedule.id,
                 className: userSchedule.schedule.class.className,
+                locationName: userSchedule.schedule.class.location.locationName,
                 dayOfWeek: userSchedule.schedule.dayOfWeek,
                 startTime: userSchedule.schedule.startTime,
                 endTime: userSchedule.schedule.endTime,
                 attendanceRecorded: attendanceRecorded,
+                remainingClasses: userSchedule.remainingClasses,
             };
         }));
 
