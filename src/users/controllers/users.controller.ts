@@ -23,6 +23,11 @@ export class UsersController {
 
     @Get('students')
     findStudents(@Query('search') search?: string) {
-      return this.userService.findStudents(search);
+        return this.userService.findStudents(search);
+    }
+
+    @Get()
+    findAllUsers() {
+        return this.userService.findAll();
     }
 }

@@ -40,6 +40,10 @@ export class UsersService {
         }
     }
 
+    async findAll(): Promise<User[]> {
+        return await this.userRepository.find()
+    }
+
     async findStudents(search?: string): Promise<Omit<User, 'password'>[]> {
         const where = {
             role: 'student',
