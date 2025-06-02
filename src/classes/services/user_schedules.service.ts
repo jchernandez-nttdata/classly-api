@@ -42,9 +42,12 @@ export class UserSchedulesService {
 
     async findOne(id: number): Promise<UserSchedule> {
         try {
-            return await this.userScheduleRepository.findOneOrFail({ where: { id: id } });
+            return await this.userScheduleRepository.findOneOrFail({
+                where: { id },
+                relations: ['schedule', 'schedule.class', 'schedule.class.location'],
+            });
         } catch (error) {
-            throw new NotFoundException('Could not find user schedule with id: ' + id)
+            throw new NotFoundException('Could not find user schedule with id: ' + id);
         }
     }
 
@@ -127,7 +130,7 @@ export class UserSchedulesService {
         }
 
         const schedules = await Promise.all(userSchedules.map(async userSchedule => {
-            const attendanceRecorded = await this.attendanceService.isAttendanceRecordedThisWeek(userSchedule.schedule.dayOfWeek, userSchedule.id);
+            const attendanceRecorded = await this.attendanceService.isAttendanceRecordedThisWeek(userSchedule);
 
             return {
                 userScheduleId: userSchedule.id,

@@ -1,14 +1,16 @@
-import { Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AttendancesService } from '../services/attendances.service';
 import { Attendance } from '../entities/attendance.entity';
+import { CreateAttendanceDto } from '../dtos/create-attendance.dto';
 
 @Controller()
 export class AttendancesController {
     constructor(private readonly attendanceService: AttendancesService) { }
 
-    @Post('userSchedules/:userScheduleId/attendances')
-    async addAttendance(@Param('userScheduleId') userScheduleId: number): Promise<Attendance> {
-        return await this.attendanceService.addAttendance(userScheduleId);
+    @Post('attendances')
+    @UsePipes(new ValidationPipe({ whitelist: true }))
+    async create(@Body() dto: CreateAttendanceDto): Promise<Attendance> {
+        return await this.attendanceService.addAttendance(dto.userScheduleId, dto.locationId);
     }
 
     @Get('students/:studentId/attendances')
